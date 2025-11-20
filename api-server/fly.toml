@@ -1,0 +1,42 @@
+# fly.toml file generated for pixells-basic-api-sender
+app = "pixells-basic-api-sender"
+primary_region = "ams"
+
+[build]
+  builder = "python:3.11-slim"
+
+[env]
+  PORT = "8080"
+  JOBS_FILE_PATH = "/data/jobs.json"
+
+[experimental]
+  auto_rollback = true
+
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "10s"
+    method = "get"
+    path = "/job/latest"
+    protocol = "http"
+    timeout = "2s"
